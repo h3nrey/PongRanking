@@ -1,19 +1,27 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express, { Express, Request, Response , Application } from 'express';
+import dotenv from 'dotenv';
+import { router as playerRouter } from './routes/players.route';
+import bodyParser from 'body-parser';
 
+//For env File 
 dotenv.config();
 
-const app: Express = express();
-const port = process.env.PORT || 3000;
+const app: Application = express();
+const port = process.env.PORT || 8000;
 
-import router from "../src/routes/api.route";
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Troste");
+app.use("/players", playerRouter)
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Welcome to Express & TypeScript Server');
 });
 
-app.use("/players", router)
-
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  console.log(`Server is Fire at http://localhost:${port}`);
 });

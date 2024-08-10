@@ -1,23 +1,12 @@
-const db = require('./db.service');
-const helper = require('../utils/helper.util');
-const config = require('../configs/general.config');
+async function listPlayers(page: number) {
+    const players = ["Fan zhendong", "Ma Long", "Wang Chuqin"]
+    console.log("list page" + page);
 
-async function list(page = 1){
-  return ["player 1", "player 2"]
+    return {
+        players
+    };
 }
 
-// async function create(data){
-// }
-
-// async function update(id, data){
-// }
-
-// async function remove(id){
-// }
-
-module.exports = {
-  list,
-//   create,
-//   update,
-//   remove
+export {
+    listPlayers,
 }
