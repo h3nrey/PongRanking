@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 dotenv.config();
 
 const app: Application = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT ?? 8000;
 
 app.use(bodyParser.json());
 app.use(
@@ -19,7 +19,7 @@ app.use(
 app.use("/players", playerRouter)
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Express & TypeScript Server');
+  res.send('Pong Rating API');
 });
 
 app.listen(port, () => {
