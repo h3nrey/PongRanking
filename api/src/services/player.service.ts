@@ -50,7 +50,7 @@ async function getPlayer(id: string) {
                     score: true,
                 }
             },
-            PlayersMatches: true
+            matches: true
         }
     })
     .catch(() => {
@@ -58,6 +58,28 @@ async function getPlayer(id: string) {
     });
 
     return player;
+}
+
+async function createPlayer(data: Player) {
+    try {
+        const player = await prisma.player.create({
+            data: {
+                name: data.name,
+                Rating: {
+                    create: {
+                        score: 0
+                    }
+                },
+                grip: {
+                    connect: { id: data.gripId}
+                }
+            }
+        }) 
+        return `The player ${player.id} was created successfully`;
+    } catch (error) {
+        console.log(error);
+        return `player was not created`;
+    }
 }
 
 async function updatePlayer(id: string, data: any) {
@@ -110,6 +132,8 @@ async function DeletePlayer(id: string) {
 export {
     listPlayers,
     getPlayer,
+    createPlayer,
     updatePlayer,
+    updatePlayerRating,
     DeletePlayer
 }

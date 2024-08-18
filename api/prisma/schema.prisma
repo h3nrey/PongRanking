@@ -8,13 +8,12 @@ datasource db {
 }
 
 model Player {
-  id             String           @id @default(uuid())
-  name           String
-  grip           Grip             @relation(fields: [gripId], references: [id])
-  Rating         Rating[]
-  Match          Match[]
-  PlayersMatches PlayersMatches[]
-  gripId         Int
+  id      String   @id @default(uuid())
+  name    String
+  grip    Grip     @relation(fields: [gripId], references: [id])
+  Rating  Rating[]
+  matches Match[]
+  gripId  Int
 }
 
 model Rating {
@@ -26,28 +25,18 @@ model Rating {
 }
 
 model Match {
-  id             Int              @id @default(autoincrement())
-  type           String           @default("single")
-  createdAt      DateTime         @default(now())
-  startedAt      DateTime         @default(now())
-  PlayersMatches PlayersMatches[]
-  Game           Game[]
-  Player         Player?          @relation(fields: [playerId], references: [id])
-  playerId       String?
-}
-
-model PlayersMatches {
-  player   Player @relation(fields: [playerId], references: [id])
-  match    Match  @relation(fields: [matchId], references: [id])
-  playerId String
-  matchId  Int
-
-  @@id([playerId, matchId])
+  id        Int      @id @default(autoincrement())
+  type      String   @default("single")
+  maxPoints Int      @default(11)
+  createdAt DateTime @default(now())
+  startedAt DateTime @default(now())
+  games     Game[]
+  players   Player[]
 }
 
 model Game {
   id        Int      @id @default(autoincrement())
-  points    String // 2x11
+  points    String // 0011100101
   match     Match    @relation(fields: [matchId], references: [id])
   matchId   Int
   createdAt DateTime @default(now())

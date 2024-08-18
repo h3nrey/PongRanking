@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { DeletePlayer, getPlayer, listPlayers, updatePlayer } from "../services/player.service";
+import { createPlayer, DeletePlayer, getPlayer, listPlayers, updatePlayer } from "../services/player.service";
 import { Sortfields } from "../constants";
 
 async function list(req: Request, res: Response) {
@@ -24,6 +24,17 @@ async function get(req: Request, res: Response) {
         res.json(player);
     } catch (error) {
         
+    }
+}
+
+async function create(req: Request, res: Response) {
+    const data = req.body;
+
+    try {
+        const player = await createPlayer(data);
+        res.json(player);
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -53,6 +64,7 @@ async function deleteF(req: Request, res: Response) {
 export {
     list,
     get,
+    create,
     update,
     deleteF
 }
