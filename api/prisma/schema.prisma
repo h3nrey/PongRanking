@@ -27,6 +27,7 @@ model Rating {
 model Match {
   id        Int      @id @default(autoincrement())
   type      String   @default("single")
+  winnerId  String
   maxPoints Int      @default(11)
   createdAt DateTime @default(now())
   startedAt DateTime @default(now())

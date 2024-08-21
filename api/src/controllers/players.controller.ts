@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createPlayer, DeletePlayer, getPlayer, listPlayers, updatePlayer } from "../services/player.service";
+import { createPlayer, DeletePlayer, getPlayer, listPlayers, updatePlayer, updatePlayerRating } from "../services/player.service";
 import { Sortfields } from "../constants";
 
 async function list(req: Request, res: Response) {
@@ -61,10 +61,20 @@ async function deleteF(req: Request, res: Response) {
     }
 }
 
+async function updateRating(req: Request, res: Response) {
+    try {
+        const response = await updatePlayerRating({id: req.params.id, score: req.body.score});
+        res.json(response);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export {
     list,
     get,
     create,
     update,
-    deleteF
+    deleteF,
+    updateRating
 }

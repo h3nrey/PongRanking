@@ -48,6 +48,10 @@ async function getPlayer(id: string) {
             Rating: {
                 select:{
                     score: true,
+                },
+                take: 1,
+                orderBy: {
+                    createdAt: 'desc'
                 }
             },
             matches: true
@@ -59,6 +63,7 @@ async function getPlayer(id: string) {
 
     return player;
 }
+
 
 async function createPlayer(data: Player) {
     try {
@@ -99,13 +104,22 @@ async function updatePlayer(id: string, data: any) {
     
 }
 
-async function updatePlayerRating(id: string, score: number){
-    await prisma.rating.create({
+async function updatePlayerRating(data: {id: string, score: number}){
+    const updatedPlayer = await prisma.player.update({
+        where: {
+            id: data.id,
+        },
         data: {
-            score: score,
-            playerId: id,
+            Rating: {
+                create: {
+                    score: data.score
+                }
+            }
         }
     })
+    console.log(data);
+
+    return updatedPlayer
 }
 
 async function DeletePlayer(id: string) {

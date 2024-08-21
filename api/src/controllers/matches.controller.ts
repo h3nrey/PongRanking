@@ -1,5 +1,5 @@
 import { Request, response, Response } from "express";
-import { createMatches, listMatches, getMatch, deleteMatch, updateMatch } from "../services/matches.service";
+import { createMatches, listMatches, getMatch, deleteMatch, updateMatch,deleteAll } from "../services/matches.service";
 
 async function get(req: Request, res: Response) {
     try {
@@ -53,10 +53,15 @@ async function update(req: Request, res: Response) {
     }
 }
 
+async function deleteAlle(req: Request, res: Response){
+    await deleteAll();
+    res.json();
+}
 export {
     get,
     create,
     list,
     Delete,
-    update
+    update,
+    deleteAlle
 }

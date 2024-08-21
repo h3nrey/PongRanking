@@ -1,10 +1,13 @@
 import { Game, Match, Player } from "@prisma/client"
 import prisma from "../lib/prisma"
 import { hasDuplicates } from "../utils";
+import { calcElo } from "../utils/eloSystem";
+import { updatePlayerRating } from "./player.service";
 
 interface IMatch {
     players: Player[],
     games: Game[],
+    winnerId: string,
     type?: string,
     maxPoints?: number,
     startedAt: Date,
@@ -74,6 +77,7 @@ async function createMatches(data: IMatch) {
                 type: data.type,
                 maxPoints: data.maxPoints,
                 startedAt: data.startedAt,
+                winnerId: data.winnerId,
                 players: {
                     connect: data.players.map((player) => ({id: player.id}))
                 },
@@ -85,9 +89,31 @@ async function createMatches(data: IMatch) {
             },
             include: {
                 games: true,
-                players: true
+                players: {
+                    include: {
+                        Rating: {
+                            select: {
+                                score: true,
+                            },
+                            take: 1,
+                            orderBy: {
+                                createdAt: "desc"
+                            }
+                        },
+                        matches: true,
+                    }
+                }
             }
         })
+
+        const players = createdMatch.players.map((player) => ({id: player.id, score: player.Rating[0].score, matches: player.matches.length}));
+        const scores = calcElo(players[0].score, players[1].score, 1);
+
+        console.log(scores);
+        players.forEach((player, i) => {
+            updatePlayerRating({id: player.id, score: scores[i]})  
+        });
+
         return {
             data: createdMatch,
             message: "Match was created sucessfully" 
@@ -102,6 +128,20 @@ async function createMatches(data: IMatch) {
         message: "Match was not created" 
     }
     
+}
+
+async function deleteAll() {
+
+
+    await prisma.match.deleteMany({
+        where:{
+            type: "single",
+            games: {
+                
+            }
+        }
+    })
+    return
 }
 
 async function deleteMatch(id: string) {
@@ -166,7 +206,6 @@ async function updateMatch(id: string, data: any) {
         })
 
         await prisma.game.createMany({
-
             data: data.games.map((game: Game) => ({
                 matchId: parseInt(id),
                 points: game.points
@@ -195,4 +234,5 @@ export {
     createMatches,
     deleteMatch,
     updateMatch,
+    deleteAll
 }
