@@ -7,13 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String   @id @default(uuid())
+  username String   @unique
+  password String
+  email    String   @unique
+  Player   Player[]
+}
+
 model Player {
   id      String   @id @default(uuid())
   name    String
   grip    Grip     @relation(fields: [gripId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
   Rating  Rating[]
   matches Match[]
   gripId  Int
+  userId  String
 }
 
 model Rating {
