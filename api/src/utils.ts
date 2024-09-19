@@ -1,3 +1,3 @@
-export function hasDuplicates(array: string[]) {
-    return new Set(array).size !== array.length;
+export function hasDuplicates(array: number[]) {
+  return new Set(array).size !== array.length;
 }

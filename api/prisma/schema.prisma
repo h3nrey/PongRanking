@@ -12,18 +12,20 @@ model User {
   username String   @unique
   password String
   email    String   @unique
-  Player   Player[]
+  player   Player?
+  cratedAt DateTime @default(now())
 }
 
 model Player {
-  id      String   @id @default(uuid())
-  name    String
-  grip    Grip     @relation(fields: [gripId], references: [id])
-  user    User     @relation(fields: [userId], references: [id])
-  Rating  Rating[]
-  matches Match[]
-  gripId  Int
-  userId  String
+  id       Int      @id @default(autoincrement())
+  name     String
+  grip     Grip     @relation(fields: [gripId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  Rating   Rating[]
+  matches  Match[]
+  gripId   Int
+  userId   String   @unique
+  cratedAt DateTime @default(now())
 }
 
 model Rating {
@@ -31,13 +33,13 @@ model Rating {
   score     Int
   createdAt DateTime @default(now())
   player    Player   @relation(fields: [playerId], references: [id])
-  playerId  String
+  playerId  Int
 }
 
 model Match {
   id        Int      @id @default(autoincrement())
   type      String   @default("single")
-  winnerId  String
+  winnerId  Int
   maxPoints Int      @default(11)
   createdAt DateTime @default(now())
   startedAt DateTime @default(now())

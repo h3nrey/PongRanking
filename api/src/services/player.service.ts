@@ -48,10 +48,11 @@ async function listPlayers(
   return players;
 }
 
-async function getPlayer(id: string) {
+async function getPlayer(idText: string) {
+  let id = parseInt(idText);
   let player = await prisma.player.findFirst({
     where: {
-      id,
+      id: id,
     },
     include: {
       Rating: {
@@ -126,6 +127,9 @@ async function createPlayer(data: Player) {
         grip: {
           connect: { id: data.gripId },
         },
+        user: {
+          connect: { id: data.userId },
+        },
       },
     });
     return `The player ${player.id} was created successfully`;
@@ -139,7 +143,7 @@ async function updatePlayer(id: string, data: any) {
   try {
     const res = await prisma.player.update({
       where: {
-        id,
+        id: parseInt(id),
       },
       data: {
         name: data.name,
@@ -154,7 +158,7 @@ async function updatePlayer(id: string, data: any) {
 async function updatePlayerRating(data: { id: string; score: number }) {
   const updatedPlayer = await prisma.player.update({
     where: {
-      id: data.id,
+      id: parseInt(data.id),
     },
     data: {
       Rating: {
@@ -173,12 +177,12 @@ async function DeletePlayer(id: string) {
   try {
     await prisma.rating.deleteMany({
       where: {
-        playerId: id,
+        playerId: parseInt(id),
       },
     });
     await prisma.player.delete({
       where: {
-        id,
+        id: parseInt(id),
       },
     });
     return `player data updated sucessfully`;

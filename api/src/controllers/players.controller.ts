@@ -16,7 +16,6 @@ async function list(req: Request, res: Response) {
   let sort =
     typeof req.query.sort === "string" ? req.query.sort : Sortfields.Name;
   let order = typeof req.query.order === "string" ? req.query.order : "desc";
-
   try {
     const players = await listPlayers(
       parseInt(page),

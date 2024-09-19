@@ -15,10 +15,11 @@ const config: Config = {
       },
     },
     colors: {
-      "red": "#FF0B0B",
-      "bg": "#2B2B2B",
-      "lightgray": "#505050"
-    }
+      red: "#FF0B0B",
+      bg: "#2B2B2B",
+      lightgray: "#505050",
+      white: "#ffffff",
+    },
   },
   plugins: [],
 };
