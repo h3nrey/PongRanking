@@ -15,7 +15,8 @@ async function registerUser({
   if (!email || !username || !password) {
     return {
       data: null,
-      message: "Please add all required fields",
+      message: "Required fields are missing",
+      status: 409,
     };
   }
 
@@ -28,7 +29,8 @@ async function registerUser({
   if (userExists)
     return {
       data: null,
-      message: "User already exists",
+      message: "user already exists",
+      status: 409,
     };
 
   // Hashing password
@@ -44,9 +46,13 @@ async function registerUser({
   });
 
   return {
-    id: createdUser.id,
-    username: createdUser.username,
-    token: await generateToken(createdUser.id),
+    data: {
+      id: createdUser.id,
+      username: createdUser.username,
+      token: await generateToken(createdUser.id),
+    },
+    message: "user sucessfully created :)",
+    status: 200,
   };
 }
 
@@ -56,9 +62,13 @@ async function loginUser({
 }: {
   username: string;
   password: string;
-}) {
+}): Promise<{ data: any; message: string; status: number }> {
   if (!username || !password) {
-    return "You havent send all inputs";
+    return {
+      data: null,
+      message: "Required fields are missing",
+      status: 400,
+    };
   }
 
   const userData = await prisma.user.findUnique({
@@ -67,9 +77,22 @@ async function loginUser({
     },
   });
 
-  if (!userData) return "user not found";
+  if (!userData) {
+    console.log("user not found");
+    return {
+      data: null,
+      message: "user not found",
+      status: 404,
+    };
+  }
 
   // Check Credentials
+  // if (password != userData.password || userData.username != username) {
+  //   return {
+  //     data: null,
+  //     message: "Invalid Credentials",
+  //   };
+  // }
   if (
     (await bcrypt.compare(password, userData.password)) == false ||
     userData.username != username
@@ -77,26 +100,106 @@ async function loginUser({
     return {
       data: null,
       message: "Invalid Credentials",
+      status: 401,
     };
   }
 
   return {
-    id: userData.id,
-    username: userData.username,
-    token: await generateToken(userData.id),
+    data: {
+      id: userData.id,
+      username: userData.username,
+      token: await generateToken(userData.id),
+    },
+    message: "logged :)",
+    status: 200,
   };
 }
 
 async function getUser(id: string) {
-  const user = await prisma.user.findUnique({
+  try {
+    const userData = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+      },
+    });
+    return {
+      data: userData,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function updateUser(id: string, data: User) {
+  const foundUser = await prisma.user.findUnique({
     where: {
       id: id,
     },
   });
 
-  return {
-    data: user,
-  };
+  if (!foundUser) {
+    return {
+      data: null,
+      message: "User not found!",
+    };
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: data,
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+
+    return {
+      data: updatedUser,
+      message: "user updated sucessfully!",
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function deleteUser(id: string) {
+  const foundUser = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!foundUser) {
+    return {
+      data: null,
+      message: "User not found!",
+    };
+  }
+
+  try {
+    const deletedUser = await prisma.user.delete({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+
+    return {
+      data: deletedUser,
+      message: "User deleted sucessfully",
+    };
+  } catch (error) {}
 }
 
 async function generateToken(id: string) {
@@ -109,4 +212,4 @@ async function generateToken(id: string) {
   return token;
 }
 
-export { loginUser, registerUser, getUser };
+export { loginUser, registerUser, getUser, updateUser, deleteUser };

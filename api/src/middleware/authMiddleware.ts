@@ -1,22 +1,50 @@
 import * as jwt from "jsonwebtoken";
 import * as asyncHandler from "express-async-handler";
 import prisma from "../lib/prisma";
-const protect = asyncHandler.default(async (req, res, next) => {
-  let token;
+import { NextFunction, Request, Response } from "express";
 
+declare module "jsonwebtoken" {
+  export interface UserJwtPayload extends jwt.JwtPayload {
+    userId: string;
+  }
+}
+
+export interface UserReq extends Request {
+  user: any;
+}
+
+async function protect(req: Request, res: Response, next: NextFunction) {
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
       // Get token from header
-      token = req.headers.authorization.split(" ")[1];
+      const token = req.headers.authorization.split(" ")[1];
+
+      if (!token) {
+        res.status(401);
+        throw new Error("Not authorized, no token");
+      }
 
       // Verify token
       if (!process.env.JWT_SECRET) return;
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = <jwt.UserJwtPayload>(
+        jwt.verify(token, process.env.JWT_SECRET)
+      );
 
-      console.log(decoded);
+      const user = await prisma.user.findUnique({
+        where: {
+          id: decoded.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (user && user.id) {
+        req.params.id = user.id;
+      }
       next();
     } catch (error) {
       console.log(error);
@@ -24,11 +52,6 @@ const protect = asyncHandler.default(async (req, res, next) => {
       throw new Error("Not authorized");
     }
   }
-
-  if (!token) {
-    res.status(401);
-    throw new Error("Not authorized, no token");
-  }
-});
+}
 
 export { protect };
