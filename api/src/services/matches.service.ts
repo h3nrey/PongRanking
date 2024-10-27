@@ -204,8 +204,23 @@ async function updateMatch(id: string, data: any) {
     await prisma.game.createMany({
       data: data.games.map((game: Game) => ({
         matchId: parseInt(id),
-        points: game.points,
       })),
+    });
+
+    const createdGames = await prisma.game.findMany({
+      where: { matchId: parseInt(id) },
+    });
+
+    createdGames.forEach(async (game, i) => {
+      await prisma.point.deleteMany({
+        where: {
+          gameId: game.id,
+        },
+      });
+
+      await prisma.point.createMany({
+        data: data.games[i].points,
+      });
     });
   }
 
