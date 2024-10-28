@@ -11,40 +11,26 @@ async function listPlayers(
 ) {
   page = page < 0 ? 0 : page;
 
-  let players = await prisma.player.findMany({
-    skip: page,
-    take: totalRows,
-    orderBy:
-      order == "asc"
-        ? {
-            name: "asc",
-          }
-        : {
-            name: "desc",
-          },
-    include: {
-      Rating: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1,
-      },
-      grip: true,
-    },
-  });
+  const offset = (page - 1) * totalRows;
+  const sortOrder = order === "asc" ? "ASC" : "DESC";
 
-  if (sortField == Sortfields.Rating) {
-    players = players.sort((a, b) => {
-      const aLatestRating = a.Rating[0]?.score || 0;
-      const bLatestRating = b.Rating[0]?.score || 0;
+  const listQuery = `
+  SELECT p.*, r.score AS "latestRating"
+  FROM "Player" p
+  LEFT JOIN "Rating" r ON r."playerId" = p.id
+  WHERE r."createdAt" = (
+    SELECT MAX("createdAt")
+    FROM "Rating" r2
+    WHERE r2."playerId" = p.id
+  )
+  ORDER BY "latestRating" ${sortOrder}
+  OFFSET ${offset}
+  LIMIT ${totalRows}
+`;
 
-      if (order == OrderTypes.ASC) {
-        return aLatestRating - bLatestRating;
-      }
-      return bLatestRating - aLatestRating;
-    });
-  }
+  const players = await prisma.$queryRawUnsafe(listQuery);
 
+  console.log(players);
   return players;
 }
 

@@ -15,8 +15,6 @@ function parsePlayer(player: any): IPlayer {
     ranking: player.ranking,
     grip: player.grip.title,
   };
-  console.log("Parsed player");
-  console.log(parsedPlayer);
   return parsedPlayer;
 }
 
@@ -73,18 +71,22 @@ function parseMatch(match: any): IMatch[] {
   };
 }
 
-export async function getPlayerRank() {
+export async function getPlayerRank(currPage: string) {
   const res = await fetch(
-    `${baseURL}players?page=0&totalRows=10&sort=rating&order=desc`
+    `${baseURL}players?page=${currPage}&totalRows=10&sort=rating&order=desc`
   );
   const data = await res.json();
   const players = data.map((player: any) => {
     return parsePlayer(player);
   });
 
-  console.log(players);
-
   return players;
+}
+
+export async function getTotalOfPlayers() {
+  const res = await fetch(`${baseURL}players/total`);
+  console.log("AAAAAAAAAAAA");
+  return await res.json();
 }
 
 export async function getPlayer(id: string) {

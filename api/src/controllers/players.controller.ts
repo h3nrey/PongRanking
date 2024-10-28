@@ -8,6 +8,7 @@ import {
   updatePlayerRating,
 } from "../services/player.service";
 import { Sortfields } from "../constants";
+import prisma from "../lib/prisma";
 
 async function list(req: Request, res: Response) {
   let page = typeof req.query.page === "string" ? req.query.page : "0";
@@ -27,6 +28,11 @@ async function list(req: Request, res: Response) {
   } catch {
     res.send("error");
   }
+}
+
+async function getCount(req: Request, res: Response) {
+  const totalPlayers = await prisma.player.count();
+  res.json(totalPlayers);
 }
 
 async function get(req: Request, res: Response) {
@@ -80,4 +86,4 @@ async function updateRating(req: Request, res: Response) {
   }
 }
 
-export { list, get, create, update, deleteF, updateRating };
+export { list, getCount, get, create, update, deleteF, updateRating };
